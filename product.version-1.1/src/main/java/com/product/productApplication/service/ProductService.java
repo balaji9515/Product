@@ -19,10 +19,11 @@ public class ProductService
     @Autowired
     ObjectMapper objectMapper;
 
-    public void addProduct(ProductDto productDto)
+    public ProductDto addProduct(ProductDto productDto)
     {
          Product pd= objectMapper.convertValue(productDto, Product.class);
          productRepository.save(pd);
+         return productDto;
     }
 
     public List<ProductDto> getAllProducts()
