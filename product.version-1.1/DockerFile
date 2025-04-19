@@ -1,0 +1,25 @@
+# Use a Maven base image to build the app
+FROM maven:latest AS build
+WORKDIR /app
+
+# Copy your pom.xml and the source code
+COPY pom.xml .
+COPY src ./src
+
+# Build the Spring Boot app
+RUN mvn clean package -DskipTests
+
+# Second stage: Run the app using a JDK image
+FROM openjdk:17-jdk-slim
+
+# Set the working directory for the app
+WORKDIR /app
+
+# Copy the built jar from the previous build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose the port the app will run on
+EXPOSE 8080
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]

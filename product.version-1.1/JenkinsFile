@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    environment {
+        MONGO_CONTAINER = 'mongo'
+        MONGO_IMAGE = 'mongo:latest'
+        APP_IMAGE = 'product-service:latest'
+    }
+
+    stages {
+        stage('Start MongoDB') {
+            steps {
+                script {
+                    sh """
+                        docker run -d --name $MONGO_CONTAINER -p 27017:27017 $MONGO_IMAGE
+                        sleep 5
+                    """
+                }
+            }
+        }
+
+        stage('Clean and Build') {
+            steps {
+                script {
+                    sh 'mvn clean install -DskipTests'
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t $APP_IMAGE ."
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up Mongo container...'
+            sh "docker stop $MONGO_CONTAINER || true"
+            sh "docker rm $MONGO_CONTAINER || true"
+        }
+    }
+}

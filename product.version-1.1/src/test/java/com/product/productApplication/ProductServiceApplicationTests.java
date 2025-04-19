@@ -58,7 +58,8 @@ public class ProductServiceApplicationTests
                 .statusCode(200)
                 .body("name", equalTo(productRequest.getName()))
                 .body("description", equalTo(productRequest.getDescription()))
-                .body("price", Matchers.is(productRequest.getPrice().intValueExact()));
+                .body("price", Matchers.is(productRequest.getPrice()
+                        .intValueExact()));
 
     }
 }
